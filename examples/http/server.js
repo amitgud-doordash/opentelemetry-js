@@ -23,12 +23,22 @@ function handleRequest(request, response) {
   const currentSpan = api.getSpan(api.context.active());
   // display traceid in the terminal
   console.log(`traceid: ${currentSpan.context().traceId}`);
+  console.log(`baggage: ${api.getBaggage(api.context.active()).getAllEntries()}`);
+  console.log(`baggage foo1: ${api.getBaggage(api.context.active()).getEntry("foo1").value}`);
+  console.log(`baggage foo2: ${api.getBaggage(api.context.active()).getEntry("foo2").value}`);
+
   const span = tracer.startSpan('handleRequest', {
     kind: 1, // server
     attributes: { key: 'value' },
   });
   // Annotate our span to capture metadata about the operation
   span.addEvent('invoking handleRequest');
+
+  http.get('http://localhost:8000', (resp) => {
+    console.log(`statusCode: ${resp.statusCode}`)
+  }).on("error", (err) => {
+    console.log("Error: " + err.message)
+  })
 
   const body = [];
   request.on('error', (err) => console.log(err));
